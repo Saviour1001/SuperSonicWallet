@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { WalletProvider } from "@/components/WalletProvider";
+import { WalletButton } from "@/components/WalletButton";
+import { ToastProvider } from "@/components/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +30,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <WalletProvider>
+          <ToastProvider />
+          <header className="p-4 flex justify-between items-center border-b border-cyan-800 bg-black">
+            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+              SuperSonic Wallet
+            </h1>
+            <WalletButton />
+          </header>
+          <main>{children}</main>
+        </WalletProvider>
       </body>
     </html>
   );
