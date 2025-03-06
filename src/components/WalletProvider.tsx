@@ -8,6 +8,7 @@ import {
 } from "@solana/wallet-adapter-react";
 import { NightlyWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { useMemo } from "react";
+import { useNetwork } from "@/contexts/NetworkContext";
 
 export function CustomWalletMultiButton() {
   const { select, wallets, publicKey, disconnect } = useWallet();
@@ -82,11 +83,11 @@ export function CustomWalletMultiButton() {
 }
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const endpoint = "https://rpc.mainnet-alpha.sonic.game";
+  const { network } = useNetwork();
   const wallets = useMemo(() => [new NightlyWalletAdapter()], []);
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider endpoint={network.endpoint}>
       <SolanaWalletProvider wallets={wallets} autoConnect>
         {children}
       </SolanaWalletProvider>

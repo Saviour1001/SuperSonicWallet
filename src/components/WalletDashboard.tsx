@@ -10,9 +10,11 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import toast from "react-hot-toast";
+import { useNetwork } from "@/contexts/NetworkContext";
 
 export function WalletDashboard() {
   const { publicKey, sendTransaction } = useWallet();
+  const { network } = useNetwork();
   const [balance, setBalance] = useState<number | null>(null);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
@@ -21,7 +23,7 @@ export function WalletDashboard() {
     Array<{ hash: string; amount: string; date: Date }>
   >([]);
 
-  const connection = new Connection("https://rpc.mainnet-alpha.sonic.game");
+  const connection = new Connection(network.endpoint);
 
   const fetchBalance = async () => {
     if (!publicKey) return;
@@ -34,20 +36,17 @@ export function WalletDashboard() {
     }
   };
 
-  // Fetch balance automatically when wallet connects and set up polling
   useEffect(() => {
     if (publicKey) {
       toast.success("Wallet connected!");
       fetchBalance();
-      // Poll for balance updates every 30 seconds
       const interval = setInterval(fetchBalance, 30000);
       return () => clearInterval(interval);
     } else {
       setBalance(null);
     }
-  }, [publicKey]);
+  }, [network, publicKey]);
 
-  // Send SOL transaction
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!publicKey || !recipient || !amount) return;
@@ -71,16 +70,14 @@ export function WalletDashboard() {
       toast.loading("Confirming transaction...", { id: toastId });
       await connection.confirmTransaction(signature, "confirmed");
 
-      // Add to transaction history
       setTxHistory((prev) => [
         { hash: signature, amount: amount, date: new Date() },
-        ...prev.slice(0, 4), // Keep only last 5 transactions
+        ...prev.slice(0, 4),
       ]);
 
       toast.success(`${amount} SOL sent successfully!`, { id: toastId });
       await fetchBalance();
 
-      // Clear form
       setRecipient("");
       setAmount("");
     } catch (e) {
@@ -95,6 +92,9 @@ export function WalletDashboard() {
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-5xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 glitch-text">
         SuperSonic Wallet
+        <span className="text-sm ml-2 font-normal bg-black/50 px-2 py-1 rounded-md border border-cyan-800/50">
+          {network.label}
+        </span>
       </h1>
 
       <div className="space-y-8">
@@ -110,7 +110,6 @@ export function WalletDashboard() {
         ) : (
           <>
             <div className="grid gap-8 md:grid-cols-2">
-              {/* Balance Card */}
               <div className="p-6 border border-cyan-800 rounded-lg bg-black/50 backdrop-blur relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('/sonic-pattern.svg')] opacity-5"></div>
                 <div className="relative z-10">
@@ -130,7 +129,6 @@ export function WalletDashboard() {
                 </div>
               </div>
 
-              {/* Send Form */}
               <form
                 onSubmit={handleSend}
                 className="p-6 border border-cyan-800 rounded-lg bg-black/50 backdrop-blur relative overflow-hidden"
@@ -179,7 +177,6 @@ export function WalletDashboard() {
               </form>
             </div>
 
-            {/* Transaction History */}
             {txHistory.length > 0 && (
               <div className="p-6 border border-cyan-800 rounded-lg bg-black/50 backdrop-blur relative overflow-hidden mt-8">
                 <div className="absolute inset-0 bg-[url('/sonic-pattern.svg')] opacity-5"></div>

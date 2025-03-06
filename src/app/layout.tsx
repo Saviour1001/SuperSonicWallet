@@ -4,6 +4,8 @@ import "./globals.css";
 import { WalletProvider } from "@/components/WalletProvider";
 import { WalletButton } from "@/components/WalletButton";
 import { ToastProvider } from "@/components/ToastProvider";
+import { NetworkProvider } from "@/contexts/NetworkContext";
+import { NetworkToggle } from "@/components/NetworkToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,16 +32,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <WalletProvider>
-          <ToastProvider />
-          <header className="p-4 flex justify-between items-center border-b border-cyan-800 bg-black">
-            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-              SuperSonic Wallet
-            </h1>
-            <WalletButton />
-          </header>
-          <main>{children}</main>
-        </WalletProvider>
+        <NetworkProvider>
+          <WalletProvider>
+            <ToastProvider />
+            <header className="p-4 flex justify-between items-center border-b border-cyan-800 bg-black">
+              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                SuperSonic Wallet
+              </h1>
+              <div className="flex items-center gap-4">
+                <NetworkToggle />
+                <WalletButton />
+              </div>
+            </header>
+            <main>{children}</main>
+          </WalletProvider>
+        </NetworkProvider>
       </body>
     </html>
   );
